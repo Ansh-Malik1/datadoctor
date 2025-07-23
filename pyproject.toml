@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datadoctor"
+version = "0.1.0"
+description = "A Python package for cleaning CSV files and detecting data leakage in machine learning workflows"
+authors = [{ name = "Ansh Malik", email = "anshmalik845@gmail.com" }]
+requires-python = ">=3.8"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "numpy",
+    "click"
+]
+
+[project.scripts]
+datadoctor = "datadoctor.cli:cli"
