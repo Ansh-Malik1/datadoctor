@@ -19,9 +19,9 @@ def clean(file,output,dropna,dropdupe,fix_cols):
 @cli.command()
 @click.argument("file",type=click.Path(exists=True))
 @click.option("--output", default="encoded_output.csv", help="Output file path")
-@click.option("--method",type=click.Choice(['label','onehot']),default='label',help='Encoding method')
-def encode(file,method):
-    encode_columns(file,method)
+@click.option("--method",type=click.Choice(["label","onehot"]),default='label',help='Encoding method')
+def encode(file,method,output):
+    encode_columns(file,output,method)
     click.echo(f"{method} encoding done successfully!")
 
 if __name__ == "__main__":
