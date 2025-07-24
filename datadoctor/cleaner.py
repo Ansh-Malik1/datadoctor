@@ -6,5 +6,67 @@ As of now the objectives of this 'cleaner' will be :
 3. standardize the data (lowercase, remove spaces etc)
 4. Generate the output
 '''
-def clean_csv():
+import numpy as np
+import pandas as pd
+from datetime import datetime
+import os
+
+def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False):
+    df=pd.read_csv(file)
+    original_shape=df.shape
+    summary=[]
+    
+    os.makedirs("backups",exist_ok=True)
+    os.makedirs("operation_summary",exist_ok=True)
+    
+    timestamp=datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path=f"backups/{os.path.basename(file).split('.')[0]}_before_cleaning_{timestamp}.csv"
+    df.to_csv(backup_path,index=False)
+    summary.append(f"Backup saved to: {backup_path}")
+    
+    if dropna:
+        before=df.shape[0]
+        df=df.dropna()
+        after=df.shape[0]
+        summary.append(f"Dropped {before-after} rows with missing values")
+        
+    if dropdupe:
+        before=df.shape[0]
+        df=df.drop_duplicates()
+        after=df.shape[0]
+        summary.append(f"Dropped {before-after} dupliacte rows")
+        
+    if fix_cols:
+        old_cols = df.columns.tolist()
+            
+        # Step 1: Strip, lower, replace
+        cleaned_cols = [col.strip().lower().replace(" ", "_") for col in df.columns]
+        
+        # Step 2: Handle duplicates by appending _2, _3, etc.
+        final_cols = []
+        seen = {}
+        for col in cleaned_cols:
+            if col not in seen:
+                seen[col] = 1
+                final_cols.append(col)
+            else:
+                seen[col] += 1
+                final_cols.append(f"{col}_{seen[col]}")
+
+        df.columns = final_cols
+        
+        # Step 3: Report changes
+        renamed = [(o, n) for o, n in zip(old_cols, final_cols) if o != n]
+        summary.append(f"Renamed columns: {renamed}")
+         
+    df.to_csv(output,index=False)
+    summary.append(f"Cleaned data saved to {output}")
+    summary.append(f"Original shape : {original_shape}, Final shape : {df.shape}")
+    
+    summary_file = f"operation_summary/cleaning_summary_{timestamp}.txt"
+    with open(summary_file, "w") as f:
+        for line in summary:
+            f.write(line + "\n")
+
+    print("\n".join(summary))
     return
