@@ -33,5 +33,14 @@ def encode(file,method,output):
 def scale(file,output,method,columns):
     scale_columns(file, method.lower(), output, list(columns) if columns else None)
     click.echo(f"Columns scaled successfully using {method} scaling method!.")
+    
+
+@cli.command()
+@click.argument("file",type=click.Path(exists=True))
+@click.option('--components', type=int, help='Number of PCA components to keep')
+@click.option("--output","-o",default="pca_output.csv",help="Output file path")
+
+def pca(file,component,output):
+    perform_pca(file,component,output)
 if __name__ == "__main__":
     cli()
