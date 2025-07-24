@@ -3,6 +3,8 @@ from datadoctor.cleaner import clean_csv
 from datadoctor.encoder import encode_columns
 from datadoctor.scaler import scale_columns
 from datadoctor.pca import perform_pca
+from datadoctor.leakage import detect_leakage
+import time
 @click.group()
 def cli():
     """Datadoctor CLI"""
@@ -40,8 +42,18 @@ def scale(file,output,method,columns):
 @click.argument("file",type=click.Path(exists=True))
 @click.option('--components', type=int, help='Number of PCA components to keep')
 @click.option("--output","-o",default="pca_output.csv",help="Output file path")
-
 def pca(file,components,output):
     perform_pca(file,components,output)
+    
+    
+@click.command()
+@click.argument("file",type=click.Path(exists=True))
+@click.option('--target',help="Name of the target column")
+@click.option('--threshold',help="Threshold value to flag high risk features")
+@click.option("--output","-o",default="leakage_report.csv",help="Output file path")
+def leakage(file,target,threshold,output):
+    detect_leakage(file,target,threshold,output)
+    
+    
 if __name__ == "__main__":
     cli()
