@@ -35,7 +35,7 @@ def perform_pca(file,components,output):
     final_df = pd.concat([pca_df, non_numeric_df.reset_index(drop=True)], axis=1)
     
     final_df.to_csv(output, index=False)
-    print(f"✅ PCA applied with {components} components. Output saved to {output}")
+    print(f"PCA applied with {components} components. Output saved to {output}")
     
     summary_path = f"operation_summary/{os.path.basename(file).split('.')[0]}_pca_summary_{timestamp}.txt"
     with open(summary_path, "w") as f:

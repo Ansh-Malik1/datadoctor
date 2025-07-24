@@ -68,7 +68,7 @@ def leakage(file,target,threshold,output):
     "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", fg="yellow"
     )
     click.secho(
-        "🔍 Reminder: High correlation ≠ Leakage", fg="yellow", bold=True
+        "Reminder: High correlation ≠ Leakage", fg="yellow", bold=True
     )
     click.secho(
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", fg="yellow"
