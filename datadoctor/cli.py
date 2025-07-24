@@ -46,14 +46,39 @@ def pca(file,components,output):
     perform_pca(file,components,output)
     
     
-@click.command()
+@cli.command()
 @click.argument("file",type=click.Path(exists=True))
 @click.option('--target',help="Name of the target column")
-@click.option('--threshold',help="Threshold value to flag high risk features")
+@click.option('--threshold',type=float ,default=0.85,help="Threshold value to flag high risk features")
 @click.option("--output","-o",default="leakage_report.csv",help="Output file path")
 def leakage(file,target,threshold,output):
-    detect_leakage(file,target,threshold,output)
-    
+    start_time=time.time()
+    click.echo(f"Analysing data leakage for the file with target as {target}")
+    try:
+        report_df, summary_path = detect_leakage(file, target, threshold, output)
+    except Exception as e:
+        click.secho(f"Error: {e}", fg="red")
+        return
+    click.echo(f"\n Leakage report saved to: {output}")
+    click.echo(f" Top suspicious features:")
+    click.echo(report_df[["feature", "score", "leak_risk"]].head(10).to_string(index=False))
+    click.echo(f"\n Step summary saved to: {summary_path}")
+    click.echo(f"\n Time taken: {round(time.time() - start_time, 2)} seconds")
+    click.secho(
+    "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", fg="yellow"
+    )
+    click.secho(
+        "🔍 Reminder: High correlation ≠ Leakage", fg="yellow", bold=True
+    )
+    click.secho(
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", fg="yellow"
+    )
+    click.secho(
+        "Some features are flagged due to strong correlation with the target.\n"
+        "This doesn't always imply data leakage.\n"
+        "Use domain knowledge before removing any column.\n",
+        fg="yellow"
+    )
     
 if __name__ == "__main__":
     cli()
