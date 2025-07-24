@@ -2,6 +2,7 @@ import click
 from datadoctor.cleaner import clean_csv
 from datadoctor.encoder import encode_columns
 from datadoctor.scaler import scale_columns
+from datadoctor.pca import perform_pca
 @click.group()
 def cli():
     """Datadoctor CLI"""
@@ -40,7 +41,7 @@ def scale(file,output,method,columns):
 @click.option('--components', type=int, help='Number of PCA components to keep')
 @click.option("--output","-o",default="pca_output.csv",help="Output file path")
 
-def pca(file,component,output):
-    perform_pca(file,component,output)
+def pca(file,components,output):
+    perform_pca(file,components,output)
 if __name__ == "__main__":
     cli()
