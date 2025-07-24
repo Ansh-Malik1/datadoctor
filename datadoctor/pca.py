@@ -48,5 +48,5 @@ def perform_pca(file,components,output):
         f.write(f"Number of Components: {components}\n")
         f.write(f"Explained Variance Ratio: {pca.explained_variance_ratio_.tolist()}\n")
 
-    print(f"📝 Summary saved to {summary_path}")
+    print(f"Summary saved to {summary_path}")
     
