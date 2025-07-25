@@ -4,6 +4,7 @@ from datadoctor.encoder import encode_columns
 from datadoctor.scaler import scale_columns
 from datadoctor.pca import perform_pca
 from datadoctor.leakage import detect_leakage
+from datadoctor.eda import perform_eda
 import time
 @click.group()
 def cli():
