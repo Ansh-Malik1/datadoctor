@@ -14,6 +14,7 @@ import os
 from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 def perform_eda(file,target=None,output="eda_report.txt"):
     # Basic information
@@ -121,7 +122,7 @@ def perform_eda(file,target=None,output="eda_report.txt"):
     for col in categorical_cols:
         try:
             plt.figure(figsize=(6, 4))
-            sns.countplot(x=col, data=df, order=df[col].value_counts().index[:10], palette='Set2')
+            sns.countplot(x=col, data=df, order=df[col].value_counts().index[:10],color="skyblue")
             plt.title(f"Count Plot of {col}")
             plt.xticks(rotation=45)
             plt.xlabel(col)
@@ -135,7 +136,24 @@ def perform_eda(file,target=None,output="eda_report.txt"):
             summary.append(f"[x] Could not generate count plot for {col}: {e}")
             continue
     
-    
+    # Correlation heatmap
+    numeric_df = df.select_dtypes(include=[np.number])
+
+    if numeric_df.shape[1] >= 2:
+        corr_matrix = numeric_df.corr()
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm", square=True, cbar_kws={"shrink": .5})
+        plt.title("Correlation Heatmap")
+        corr_path = os.path.join(graph_dir, "correlation_heatmap.png")
+        plt.tight_layout()
+        plt.savefig(corr_path)
+        plt.close()
+        summary.append(f"\nCorrelation heatmap saved to {corr_path}")
+    else:
+        summary.append("Not enough numeric columns to compute correlation heatmap.")
+        
+        
+        
     os.makedirs("operation_summary", exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     summary_path= f"operation_summary/eda_report_{timestamp}.txt"
