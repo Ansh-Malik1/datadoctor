@@ -12,6 +12,8 @@ Features to be added in eda:
 import pandas as pd
 import os
 from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def perform_eda(file,target=None,output="eda_report.txt"):
     # Basic information
@@ -89,7 +91,51 @@ def perform_eda(file,target=None,output="eda_report.txt"):
     if target_data.isnull().sum() > 0:
         summary.append(f"Warning: Target column has {target_data.isnull().sum()} missing values.")
         
-        
+    
+    # Feature Distribution
+    graph_dir = "generated_graphs"
+    os.makedirs(graph_dir, exist_ok=True)
+
+    numeric_cols = df.select_dtypes(include=["int", "float"]).columns.tolist()
+    categorical_cols = df.select_dtypes(include=["object", "category", "bool"]).columns.tolist()
+
+    summary.append("\n=== Graphs Generated ===")
+    
+    # Numerical columns: Histograms
+    for col in numeric_cols:
+        try:
+            plt.figure(figsize=(6, 4))
+            sns.histplot(df[col].dropna(), kde=True, bins=30, color='skyblue')
+            plt.title(f"Distribution of {col}")
+            plt.xlabel(col)
+            plt.ylabel("Frequency")
+            file_path = os.path.join(graph_dir, f"distribution_{col}.png")
+            plt.savefig(file_path)
+            plt.close()
+            summary.append(f"[✓] Distribution graph saved: {file_path}")
+        except Exception as e:
+            summary.append(f"[x] Could not generate graph for {col}: {e}")
+            continue
+
+    # Categorical columns: Count plots
+    for col in categorical_cols:
+        try:
+            plt.figure(figsize=(6, 4))
+            sns.countplot(x=col, data=df, order=df[col].value_counts().index[:10], palette='Set2')
+            plt.title(f"Count Plot of {col}")
+            plt.xticks(rotation=45)
+            plt.xlabel(col)
+            plt.ylabel("Count")
+            file_path = os.path.join(graph_dir, f"countplot_{col}.png")
+            plt.tight_layout()
+            plt.savefig(file_path)
+            plt.close()
+            summary.append(f"[✓] Count plot saved: {file_path}")
+        except Exception as e:
+            summary.append(f"[x] Could not generate count plot for {col}: {e}")
+            continue
+    
+    
     os.makedirs("operation_summary", exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     summary_path= f"operation_summary/eda_report_{timestamp}.txt"
