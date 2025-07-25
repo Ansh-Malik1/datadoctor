@@ -57,6 +57,39 @@ def perform_eda(file,target=None,output="eda_report.txt"):
             summary.append(f"  Max   : {stats['max']}")
     summary.append("=" * 60)
     
+    
+    #Target insights
+    if target not in df.columns:
+        summary.append(f"Target column '{target}' not found in the dataset.")
+        return
+
+    target_data = df[target]
+    summary.append(f"\n--- Target Insights: '{target}' ---")
+
+    if pd.api.types.is_numeric_dtype(target_data):
+        summary.append("Target is numeric.")
+        summary.append(f"Mean: {round(target_data.mean(), 4)}")
+        summary.append(f"Median: {round(target_data.median(), 4)}")
+        summary.append(f"Std Deviation: {round(target_data.std(), 4)}")
+        summary.append(f"Min: {target_data.min()}, Max: {target_data.max()}")
+    else:
+        summary.append("Target is categorical.")
+        value_counts = target_data.value_counts(dropna=False)
+        summary.append("Class distribution:")
+        for cls, count in value_counts.items():
+            percent = round((count / len(target_data)) * 100, 2)
+            summary.append(f"- {cls}: {count} ({percent}%)")
+        if value_counts.shape[0] == 2:
+            summary.append("Binary classification detected.")
+        elif value_counts.shape[0] <= 10:
+            summary.append("Multi-class classification detected.")
+        else:
+            summary.append("High-cardinality target detected.")
+
+    if target_data.isnull().sum() > 0:
+        summary.append(f"Warning: Target column has {target_data.isnull().sum()} missing values.")
+        
+        
     os.makedirs("operation_summary", exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     summary_path= f"operation_summary/eda_report_{timestamp}.txt"
