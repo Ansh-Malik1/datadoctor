@@ -17,8 +17,12 @@ def cli():
 @click.option("--dropna",is_flag=True,help="Drop the rows with missing values")
 @click.option("--dropdupe",is_flag=True,help="Drop duplicate rows")
 @click.option("--fix-cols",is_flag=True,help="Standardize column names")
-def clean(file,output,dropna,dropdupe,fix_cols):
-    clean_csv(file,output,dropna,dropdupe,fix_cols)
+@click.option("--fillna",help="Fill out null values using mean,median,mode or constand fill strategy")
+@click.option('--columns', default=None, help='Specify columns to operate on (comma-separated).')
+def clean(file,output,dropna,dropdupe,fix_cols,fillna,columns):
+    if fillna == "":
+        fillna = True
+    clean_csv(file,output,dropna,dropdupe,fix_cols,fillna,columns)
     click.echo(f"File cleaned succesfully and saved to {output}")
 
 @cli.command()
@@ -95,7 +99,7 @@ def eda(file,target,output):
         return
     click.echo(f"\nEDA summary saved to: {summary_path}")
     click.echo(f"\nTime taken: {round(time.time() - start_time, 2)} seconds")
-    click.secho("\n✅ EDA complete.", fg="green")
+    click.secho("\nEDA complete.", fg="green")
 
 if __name__ == "__main__":
     cli()

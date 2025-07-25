@@ -11,11 +11,25 @@ import pandas as pd
 from datetime import datetime
 import os
 
-def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False):
+def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna=None,columns=None):
     df=pd.read_csv(file)
     original_shape=df.shape
     summary=[]
-    
+    if not any([dropna, fillna, dropdupe, fix_cols]):
+        raise ValueError("No operation specified")
+    if dropna and fillna:
+        raise ValueError("You cannot use both --dropna and --fillna together. Choose one.")
+    if columns:
+        if all(len(col) == 1 for col in columns) and len(columns) > 3:
+            raise ValueError(
+                f"It looks like you passed a single string without proper quoting, which got split into characters: {columns}. "
+                f"\nPlease use quotes like: --columns 'Profit' or pass as multiple flags: --columns Profit --columns Sales"
+            )
+        missing_cols = [col for col in columns if col not in df.columns]
+        if missing_cols:
+            raise ValueError(f"The following specified columns do not exist in the dataset: {missing_cols}")
+    else:
+        columns = df.columns  # Apply to entire dataset if no columns specified
     os.makedirs("backups",exist_ok=True)
     os.makedirs("operation_summary",exist_ok=True)
     
@@ -58,7 +72,37 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False):
         # Step 3: Report changes
         renamed = [(o, n) for o, n in zip(old_cols, final_cols) if o != n]
         summary.append(f"Renamed columns: {renamed}")
-         
+    if fillna is not None:
+        if fillna is True:  # Case: user passed --fillna without value
+            fillna = "mean"
+            summary.append("No fillna strategy specified. Defaulting to 'mean'.")
+
+        strategy = fillna.lower()
+        numeric_cols = df.select_dtypes(include='number').columns
+        fill_stats = {}
+
+        if strategy in ["mean", "median", "mode"]:
+            for col in numeric_cols:
+                if df[col].isnull().sum() > 0:
+                    if strategy == "mean":
+                        value = df[col].mean()
+                    elif strategy == "median":
+                        value = df[col].median()
+                    else:
+                        value = df[col].mode().iloc[0]
+                    df[col].fillna(value, inplace=True)
+                    fill_stats[col] = (df[col].isnull().sum(), value)
+            summary.append(f"Filled missing numeric values using '{strategy}' strategy.")
+
+        else:
+            # Try using it as a constant
+            try:
+                constant = float(strategy)
+                df.fillna(constant, inplace=True)
+                summary.append(f"Filled all missing values with constant value: {constant}")
+            except ValueError:
+                summary.append(f"Invalid fillna value: '{strategy}'. Skipped filling.")
+
     df.to_csv(output,index=False)
     summary.append(f"Cleaned data saved to {output}")
     summary.append(f"Original shape : {original_shape}, Final shape : {df.shape}")
