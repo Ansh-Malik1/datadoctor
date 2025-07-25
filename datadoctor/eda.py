@@ -152,8 +152,6 @@ def perform_eda(file,target=None,output="eda_report.txt"):
     else:
         summary.append("Not enough numeric columns to compute correlation heatmap.")
         
-        
-        
     # Warnings
     warnings = []
 
@@ -226,7 +224,6 @@ def perform_eda(file,target=None,output="eda_report.txt"):
             summary.append("No significant class imbalance detected.")
 
     # Feature Variance
-        
     summary.append("\nFeature Variance")
     try:
         variance = df.select_dtypes(include=[np.number]).var()
@@ -236,7 +233,7 @@ def perform_eda(file,target=None,output="eda_report.txt"):
         summary.append(f"→ Variance calculated for {len(variance)} numerical features.")
         if not low_variance_features.empty:
             summary.append(
-                f"⚠️ {len(low_variance_features)} features have low variance (< {low_variance_threshold}):\n"
+                f"{len(low_variance_features)} features have low variance (< {low_variance_threshold}):\n"
                 + ", ".join(low_variance_features.index.tolist())
             )
         else:
