@@ -113,7 +113,7 @@ def perform_eda(file,target=None,output="eda_report.txt"):
             file_path = os.path.join(graph_dir, f"distribution_{col}.png")
             plt.savefig(file_path)
             plt.close()
-            summary.append(f"[✓] Distribution graph saved: {file_path}")
+            summary.append(f"Distribution graph saved: {file_path}")
         except Exception as e:
             summary.append(f"[x] Could not generate graph for {col}: {e}")
             continue
@@ -131,7 +131,7 @@ def perform_eda(file,target=None,output="eda_report.txt"):
             plt.tight_layout()
             plt.savefig(file_path)
             plt.close()
-            summary.append(f"[✓] Count plot saved: {file_path}")
+            summary.append(f"Count plot saved: {file_path}")
         except Exception as e:
             summary.append(f"[x] Could not generate count plot for {col}: {e}")
             continue
@@ -153,6 +153,45 @@ def perform_eda(file,target=None,output="eda_report.txt"):
         summary.append("Not enough numeric columns to compute correlation heatmap.")
         
         
+        
+    # Warnings
+    warnings = []
+
+    # Constant Columns
+    constant_cols = [col for col in df.columns if df[col].nunique() == 1]
+    if constant_cols:
+        warnings.append(f"Constant columns detected: {', '.join(constant_cols)}")
+
+    # Highly Correlated Features
+    corr_matrix = df.select_dtypes(include='number').corr().abs()
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+    high_corr_pairs = [(col, row) for col in upper.columns for row in upper.index if pd.notnull(upper.loc[row, col]) and upper.loc[row, col] > 0.95]
+    if high_corr_pairs:
+        warning_text = "; ".join([f"{a} ~ {b} ({corr_matrix.loc[a, b]:.2f})" for a, b in high_corr_pairs])
+        warnings.append(f"Highly correlated feature pairs (corr > 0.95): {warning_text}")
+
+    # Missingness > 50%
+    missing_50 = df.columns[df.isnull().mean() > 0.5].tolist()
+    if missing_50:
+        warnings.append(f"Columns with >50% missing values: {', '.join(missing_50)}")
+
+    # Duplicate Columns
+    duplicate_cols = []
+    cols = df.columns
+    for i in range(len(cols)):
+        for j in range(i+1, len(cols)):
+            if df[cols[i]].equals(df[cols[j]]):
+                duplicate_cols.append((cols[i], cols[j]))
+    if duplicate_cols:
+        warning_text = "; ".join([f"{a} == {b}" for a, b in duplicate_cols])
+        warnings.append(f"Duplicate columns detected: {warning_text}")
+
+    # Append to summary
+    summary.append("\n=== Automatic Warnings ===")
+    if warnings:
+        summary.extend([f"- {w}" for w in warnings])
+    else:
+        summary.append("No red flags detected.")
         
     os.makedirs("operation_summary", exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
