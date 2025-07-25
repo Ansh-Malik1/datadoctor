@@ -6,8 +6,8 @@ Features to be added in eda:
 3. Target Variable insights 
 4. Feature distribution
 5. Correlation matrix
-6. Feature varianve 
-8. Visual outputs
+6. Feature variance 
+7. Visual outputs
 '''
 import pandas as pd
 import os
@@ -193,6 +193,58 @@ def perform_eda(file,target=None,output="eda_report.txt"):
     else:
         summary.append("No red flags detected.")
         
+    summary.append("="*26)
+    # Target-specific Analysis
+    summary.append("\nTarget-specific Insights")
+    target_dtype = df[target].dtype
+
+    if pd.api.types.is_numeric_dtype(df[target]):
+        # Outlier Detection using IQR
+        Q1 = df[target].quantile(0.25)
+        Q3 = df[target].quantile(0.75)
+        IQR = Q3 - Q1
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+        outliers = df[(df[target] < lower) | (df[target] > upper)]
+
+        summary.append(f"Target '{target}' is numeric.")
+        summary.append(f"IQR-based Outlier Detection:")
+        summary.append(f"- Lower Bound: {lower:.2f}")
+        summary.append(f"- Upper Bound: {upper:.2f}")
+        summary.append(f"- Outliers detected: {len(outliers)} / {len(df)} ({len(outliers)/len(df)*100:.2f}%)")
+
+    else:
+        # Class imbalance check
+        class_percents = df[target].value_counts(normalize=True) * 100
+        min_pct = class_percents.min()
+        max_pct = class_percents.max()
+
+        summary.append(f"Target '{target}' is categorical.")
+        if (min_pct < 10) or (max_pct > 80):
+            summary.append("Potential class imbalance detected. Consider techniques like oversampling/undersampling.")
+        else:
+            summary.append("No significant class imbalance detected.")
+
+    # Feature Variance
+        
+    summary.append("\nFeature Variance")
+    try:
+        variance = df.select_dtypes(include=[np.number]).var()
+        low_variance_threshold = 0.01
+        low_variance_features = variance[variance < low_variance_threshold]
+
+        summary.append(f"→ Variance calculated for {len(variance)} numerical features.")
+        if not low_variance_features.empty:
+            summary.append(
+                f"⚠️ {len(low_variance_features)} features have low variance (< {low_variance_threshold}):\n"
+                + ", ".join(low_variance_features.index.tolist())
+            )
+        else:
+            summary.append("→ No low-variance features detected.")
+    except Exception as e:
+        summary.append(f"Error while calculating feature variance: {e}")
+
+    
     os.makedirs("operation_summary", exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     summary_path= f"operation_summary/eda_report_{timestamp}.txt"
