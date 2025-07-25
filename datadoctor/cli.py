@@ -79,6 +79,22 @@ def leakage(file,target,threshold,output):
         "Use domain knowledge before removing any column.\n",
         fg="yellow"
     )
-    
+
+@cli.command()
+@click.argument("file",type=click.Path(exists=True))
+@click.option("--target",help="Optional: Name of the target column")
+@click.option("--output", "-o", default="eda_report.txt", help="Output report file")
+def eda(file,target,output):
+    start_time = time.time()
+    click.echo(f"Running EDA on {file} ...")
+    try:
+        summary_path = perform_eda(file, target, output)
+    except Exception as e:
+        click.secho(f"Error: {e}", fg="red")
+        return
+    click.echo(f"\nEDA summary saved to: {summary_path}")
+    click.echo(f"\nTime taken: {round(time.time() - start_time, 2)} seconds")
+    click.secho("\n✅ EDA complete.", fg="green")
+
 if __name__ == "__main__":
     cli()
