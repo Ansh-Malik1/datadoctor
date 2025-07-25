@@ -37,6 +37,24 @@ def perform_eda(file,target=None,output="eda_report.txt"):
     dup_count = df.duplicated().sum()
     summary.append(f"Duplicate Rows: {dup_count}")
     
+    
+    # Descriptive statistics
+    summary.append("\nDescriptive Statistics (Numerical Columns):")
+    if df.select_dtypes(include='number').empty:
+        summary.append("No numerical columns found.")
+    else:
+        desc = df.describe().T.round(2)
+        for col in desc.index:
+            stats = desc.loc[col]
+            summary.append(f"\nColumn: {col}")
+            summary.append(f"  Count : {int(stats['count'])}")
+            summary.append(f"  Mean  : {stats['mean']}")
+            summary.append(f"  Std   : {stats['std']}")
+            summary.append(f"  Min   : {stats['min']}")
+            summary.append(f"  25%   : {stats['25%']}")
+            summary.append(f"  Median: {stats['50%']}")
+            summary.append(f"  75%   : {stats['75%']}")
+            summary.append(f"  Max   : {stats['max']}")
     summary.append("=" * 60)
     
     os.makedirs("operation_summary", exist_ok=True)
