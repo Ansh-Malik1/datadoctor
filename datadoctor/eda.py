@@ -161,12 +161,6 @@ def perform_eda(file,target=None,output="eda_report.txt",no_graphs=False):
         
     # Warnings
     warnings = []
-
-    # Constant Columns
-    constant_cols = [col for col in df.columns if df[col].nunique() == 1]
-    if constant_cols:
-        warnings.append(f"Constant columns detected: {', '.join(constant_cols)}")
-
     # Highly Correlated Features
     corr_matrix = df.select_dtypes(include='number').corr().abs()
     upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
@@ -234,7 +228,7 @@ def perform_eda(file,target=None,output="eda_report.txt",no_graphs=False):
     summary.append("\nFeature Variance")
     try:
         variance = df.select_dtypes(include=[np.number]).var()
-        low_variance_threshold = 0.01
+        low_variance_threshold = 0.1
         low_variance_features = variance[variance < low_variance_threshold]
 
         summary.append(f"→ Variance calculated for {len(variance)} numerical features.")
