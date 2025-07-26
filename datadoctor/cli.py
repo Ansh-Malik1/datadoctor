@@ -54,8 +54,10 @@ def scale(file,output,method,columns):
 @click.argument("file",type=click.Path(exists=True))
 @click.option('--components', type=int, help='Number of PCA components to keep')
 @click.option("--output","-o",default="pca_output.csv",help="Output file path")
-def pca(file,components,output):
-    perform_pca(file,components,output)
+@click.option('--retain', type=float, help='Fraction of variance to retain (e.g., 0.95)')
+@click.option('--target' ,required=True,help='Column name of target variable to exclude from PCA.')
+def pca(file,output,target,components,retain):
+    perform_pca(file,output,target,components,retain)
     
     
 @cli.command()
