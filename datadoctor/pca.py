@@ -7,6 +7,14 @@ from datetime import datetime
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
+def was_scaled(summary_dir="operation_summary"):
+    if not os.path.exists(summary_dir):
+        return False
+
+    for fname in os.listdir(summary_dir):
+        if fname.startswith("scaling") and fname.endswith(".txt"):
+            return True
+    return False
 def perform_pca(file,output,target,components=None,retain=None):
     df=pd.read_csv(file)
     os.makedirs("backups",exist_ok=True)
@@ -30,7 +38,7 @@ def perform_pca(file,output,target,components=None,retain=None):
     numeric_cols = numeric_df.columns.tolist()
     mean_vals = df[numeric_cols].mean()
     std_vals = df[numeric_cols].std()
-    if not (abs(mean_vals.mean()) < 1 and 0.5 < std_vals.mean() < 2):
+    if not was_scaled():
         print("Warning: Data might not be scaled. PCA usually works best on scaled data.")
         confirm = input("Do you still want to proceed? (y/n): ").strip().lower()
         if confirm != 'y':
@@ -61,7 +69,6 @@ def perform_pca(file,output,target,components=None,retain=None):
     if target_series is not None:
         final_df[target] = target_series.values
     final_df.to_csv(output, index=False)
-    print(f"PCA applied with {components} components. Output saved to {output}")
     
     if retain:
         print(f"PCA applied to retain {float(retain)*100:.2f}% variance using {components_used} components. Output saved to {output}")
