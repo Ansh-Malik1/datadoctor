@@ -13,11 +13,11 @@ def cli():
     
 @cli.command()
 @click.argument("file",type=click.Path(exists=True))
-@click.option("--output","-o", default="cleaned.csv", help="Output file path")
+@click.option("--output","-o", default="cleaned.csv", help="User defined output file's name. Default : cleaned.csv")
 @click.option("--dropna",is_flag=True,help="Drop the rows with missing values")
 @click.option("--dropdupe",is_flag=True,help="Drop duplicate rows")
-@click.option("--fix-cols",is_flag=True,help="Standardize column names")
-@click.option("--fillna",help="Fill out null values using mean,median,mode or constand fill strategy")
+@click.option("--fix-cols",is_flag=True,help="Standardize column names (converts name to lowercase,removes trailing spaces etc)")
+@click.option("--fillna",help="Fill out null values using mean,median,mode or constant fill strategy. Mutually exclusive with dropna")
 @click.option('--columns',multiple=True, default=None, help='Specify columns to operate on (comma-separated).')
 def clean(file,output,dropna,dropdupe,fix_cols,fillna,columns):
     if fillna == "":
@@ -29,7 +29,7 @@ def clean(file,output,dropna,dropdupe,fix_cols,fillna,columns):
 
 @cli.command()
 @click.argument("file",type=click.Path(exists=True))
-@click.option("--output","-o", default="encoded_output.csv", help="Output file path")
+@click.option("--output","-o", default="encoded_output.csv", help="User defined output file's name. Default : encoded_output.csv")
 @click.option("--method",type=click.Choice(["label","onehot"]),default='label',help='Encoding method')
 @click.option('--columns',multiple=True, default=None,help='Specify columns to operate on (comma-separated).')
 def encode(file,method,output,columns):
@@ -40,8 +40,8 @@ def encode(file,method,output,columns):
 
 @cli.command()
 @click.argument("file",type=click.Path(exists=True))
-@click.option("--output","-o",default="scaled_output.csv",help="Output file path")
-@click.option("--method",type=click.Choice(["standard", "minmax"], case_sensitive=False), help="Scaling method: standard or minmax")
+@click.option("--output","-o",default="scaled_output.csv",help="User defined output file's name. Default : scaled_output.csv")
+@click.option("--method",type=click.Choice(["standard", "minmax"], case_sensitive=False), help="Scaling method: standard or minmax,default method : standard")
 @click.option("--columns", multiple=True, help="Optional: Specific columns to scale. If not provided, all numerical columns (excluding binary) will be scaled")
 def scale(file,output,method,columns):
     if method:
@@ -53,8 +53,8 @@ def scale(file,output,method,columns):
 @cli.command()
 @click.argument("file",type=click.Path(exists=True))
 @click.option('--components', type=int, help='Number of PCA components to keep')
-@click.option("--output","-o",default="pca_output.csv",help="Output file path")
-@click.option('--retain', type=float, help='Fraction of variance to retain (e.g., 0.95)')
+@click.option("--output","-o",default="pca_output.csv",help="User defined output file's name. Default : pca_output.csv")
+@click.option('--retain', type=float, help='Fraction of variance to retain (e.g., 0.95). Mutually exclusive with components')
 @click.option('--target' ,required=True,help='Column name of target variable to exclude from PCA.')
 def pca(file,output,target,components,retain):
     perform_pca(file,output,target,components,retain)
@@ -97,7 +97,7 @@ def leakage(file,target,threshold,output):
 @cli.command()
 @click.argument("file",type=click.Path(exists=True))
 @click.option("--target",help="Optional: Name of the target column")
-@click.option("--output", "-o", default="eda_report.txt", help="Output report file")
+@click.option("--output", "-o", default="eda_report.txt", help="User defined output file's name. Default : eda_report.txt")
 @click.option("--skip_graphs",is_flag=True,help="Provides user an option to skip graph generation for faster EDA.")
 def eda(file,target,output,skip_graphs):
     start_time = time.time()
