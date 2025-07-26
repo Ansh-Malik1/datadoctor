@@ -1,16 +1,16 @@
 import click
-from datadoctor.cleaner import clean_csv
-from datadoctor.encoder import encode_columns
-from datadoctor.scaler import scale_columns
-from datadoctor.pca import perform_pca
-from datadoctor.leakage import detect_leakage
-from datadoctor.eda import perform_eda
-from datadoctor import __version__
+from datamedic.cleaner import clean_csv
+from datamedic.encoder import encode_columns
+from datamedic.scaler import scale_columns
+from datamedic.pca import perform_pca
+from datamedic.leakage import detect_leakage
+from datamedic.eda import perform_eda
+from datamedic import __version__
 import time
 @click.group()
-@click.version_option(version=__version__, prog_name="datadoctor")
+@click.version_option(version=__version__, prog_name="datamedic")
 def cli():
-    """Datadoctor CLI"""
+    """datamedic CLI"""
     pass
     
 @cli.command()
