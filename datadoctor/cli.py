@@ -98,11 +98,12 @@ def leakage(file,target,threshold,output):
 @click.argument("file",type=click.Path(exists=True))
 @click.option("--target",help="Optional: Name of the target column")
 @click.option("--output", "-o", default="eda_report.txt", help="Output report file")
-def eda(file,target,output):
+@click.option("--skip_graphs",is_flag=True,help="Provides user an option to skip graph generation for faster EDA.")
+def eda(file,target,output,skip_graphs):
     start_time = time.time()
     click.echo(f"Running EDA on {file} ...")
     try:
-        summary_path = perform_eda(file, target, output)
+        summary_path = perform_eda(file, target, output,skip_graphs)
     except Exception as e:
         click.secho(f"Error: {e}", fg="red")
         return

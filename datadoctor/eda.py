@@ -16,9 +16,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-def perform_eda(file,target=None,output="eda_report.txt"):
+def perform_eda(file,target=None,output="eda_report.txt",no_graphs=False):
     # Basic information
     df=pd.read_csv(file)
+    correlation_matrix = df.select_dtypes(include='number').corr()
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = os.path.join("eda_outputs", timestamp)
+    graphs_dir = os.path.join(output_dir, "graphs")
+    os.makedirs(graphs_dir, exist_ok=True)
+    summary_path = os.path.join(output_dir, "eda_report.txt")
     summary=[]
     summary.append(f"# Basic Dataset Summary for: {file}")
     summary.append("=" * 60)
@@ -63,8 +69,7 @@ def perform_eda(file,target=None,output="eda_report.txt"):
     
     #Target insights
     if target not in df.columns:
-        summary.append(f"Target column '{target}' not found in the dataset.")
-        return
+        raise ValueError("Target column not found. Please ensure you provide a target column")
 
     target_data = df[target]
     summary.append(f"\n--- Target Insights: '{target}' ---")
@@ -92,65 +97,67 @@ def perform_eda(file,target=None,output="eda_report.txt"):
     if target_data.isnull().sum() > 0:
         summary.append(f"Warning: Target column has {target_data.isnull().sum()} missing values.")
         
-    
+    if not no_graphs:
     # Feature Distribution
-    graph_dir = "generated_graphs"
-    os.makedirs(graph_dir, exist_ok=True)
+        if len(df) > 10000:
+            df_sample = df.sample(n=10000, random_state=42)
+        else:
+            df_sample = df.copy()
+        numeric_cols = df_sample.select_dtypes(include=["int", "float"]).columns.tolist()
+        categorical_cols = df_sample.select_dtypes(include=["object", "category", "bool"]).columns.tolist()
 
-    numeric_cols = df.select_dtypes(include=["int", "float"]).columns.tolist()
-    categorical_cols = df.select_dtypes(include=["object", "category", "bool"]).columns.tolist()
 
-    summary.append("\n=== Graphs Generated ===")
+        summary.append("\n=== Graphs Generated ===")
     
     # Numerical columns: Histograms
-    for col in numeric_cols:
-        try:
-            plt.figure(figsize=(6, 4))
-            sns.histplot(df[col].dropna(), kde=True, bins=30, color='skyblue')
-            plt.title(f"Distribution of {col}")
-            plt.xlabel(col)
-            plt.ylabel("Frequency")
-            file_path = os.path.join(graph_dir, f"distribution_{col}.png")
-            plt.savefig(file_path)
-            plt.close()
-            summary.append(f"Distribution graph saved: {file_path}")
-        except Exception as e:
-            summary.append(f"[x] Could not generate graph for {col}: {e}")
-            continue
+        for col in numeric_cols[:10]:
+            try:
+                plt.figure(figsize=(6, 4))
+                sns.histplot(df[col].dropna(), kde=True, bins=30, color='skyblue')
+                plt.title(f"Distribution of {col}")
+                plt.xlabel(col)
+                plt.ylabel("Frequency")
+                file_path = os.path.join(graphs_dir, f"distribution_{col}.png")
+                plt.savefig(file_path)
+                plt.close()
+                summary.append(f"Distribution graph saved: {file_path}")
+            except Exception as e:
+                summary.append(f"[x] Could not generate graph for {col}: {e}")
+                continue
 
-    # Categorical columns: Count plots
-    for col in categorical_cols:
-        try:
-            plt.figure(figsize=(6, 4))
-            sns.countplot(x=col, data=df, order=df[col].value_counts().index[:10],color="skyblue")
-            plt.title(f"Count Plot of {col}")
-            plt.xticks(rotation=45)
-            plt.xlabel(col)
-            plt.ylabel("Count")
-            file_path = os.path.join(graph_dir, f"countplot_{col}.png")
-            plt.tight_layout()
-            plt.savefig(file_path)
-            plt.close()
-            summary.append(f"Count plot saved: {file_path}")
-        except Exception as e:
-            summary.append(f"[x] Could not generate count plot for {col}: {e}")
-            continue
+        # Categorical columns: Count plots
+        for col in categorical_cols[:5]:
+            try:
+                plt.figure(figsize=(6, 4))
+                sns.countplot(x=col, data=df, order=df[col].value_counts().index[:10],color="skyblue")
+                plt.title(f"Count Plot of {col}")
+                plt.xticks(rotation=45)
+                plt.xlabel(col)
+                plt.ylabel("Count")
+                file_path = os.path.join(graphs_dir, f"countplot_{col}.png")
+                plt.tight_layout()
+                plt.savefig(file_path)
+                plt.close()
+                summary.append(f"Count plot saved: {file_path}")
+            except Exception as e:
+                summary.append(f"[x] Could not generate count plot for {col}: {e}")
+                continue
     
     # Correlation heatmap
-    numeric_df = df.select_dtypes(include=[np.number])
+        numeric_df = df.select_dtypes(include=[np.number])
 
-    if numeric_df.shape[1] >= 2:
-        corr_matrix = numeric_df.corr()
-        plt.figure(figsize=(12, 8))
-        sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm", square=True, cbar_kws={"shrink": .5})
-        plt.title("Correlation Heatmap")
-        corr_path = os.path.join(graph_dir, "correlation_heatmap.png")
-        plt.tight_layout()
-        plt.savefig(corr_path)
-        plt.close()
-        summary.append(f"\nCorrelation heatmap saved to {corr_path}")
-    else:
-        summary.append("Not enough numeric columns to compute correlation heatmap.")
+        if numeric_df.shape[1] >= 2:
+            corr_matrix = numeric_df.corr()
+            plt.figure(figsize=(12, 8))
+            sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm", square=True, cbar_kws={"shrink": .5})
+            plt.title("Correlation Heatmap")
+            corr_path = os.path.join(graphs_dir, "correlation_heatmap.png")
+            plt.tight_layout()
+            plt.savefig(corr_path)
+            plt.close()
+            summary.append(f"\nCorrelation heatmap saved to {corr_path}")
+        else:
+            summary.append("Not enough numeric columns to compute correlation heatmap.")
         
     # Warnings
     warnings = []
@@ -240,11 +247,20 @@ def perform_eda(file,target=None,output="eda_report.txt"):
             summary.append("→ No low-variance features detected.")
     except Exception as e:
         summary.append(f"Error while calculating feature variance: {e}")
-
+        
+    # ========== SUGGESTIONS ==========
+    summary.append("\n= SUGGESTIONS & NEXT STEPS ===")
+    if not missing.empty:
+        summary.append("- Consider imputing missing values.")
+    if any(df[col].nunique() <= 1 for col in df.columns):
+        summary.append("- Some columns have constant or near-constant values. Consider dropping.")
+    if target and target in df.columns:
+        imbalance = df[target].value_counts(normalize=True)
+        if imbalance.max() > 0.9:
+            summary.append("- Target column appears imbalanced. You may consider using sampling techniques.")
+    summary.append("")
     
-    os.makedirs("operation_summary", exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    summary_path= f"operation_summary/eda_report_{timestamp}.txt"
+
     with open(summary_path, "w", encoding="utf-8") as f:
         f.write("\n".join(summary))
 
