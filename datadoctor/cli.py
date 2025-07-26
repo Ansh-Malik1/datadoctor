@@ -18,19 +18,24 @@ def cli():
 @click.option("--dropdupe",is_flag=True,help="Drop duplicate rows")
 @click.option("--fix-cols",is_flag=True,help="Standardize column names")
 @click.option("--fillna",help="Fill out null values using mean,median,mode or constand fill strategy")
-@click.option('--columns', default=None, help='Specify columns to operate on (comma-separated).')
+@click.option('--columns',multiple=True, default=None, help='Specify columns to operate on (comma-separated).')
 def clean(file,output,dropna,dropdupe,fix_cols,fillna,columns):
     if fillna == "":
         fillna = True
-    clean_csv(file,output,dropna,dropdupe,fix_cols,fillna,columns)
+    if columns and len(columns) == 1 and ',' in columns[0]:
+        columns = [col.strip() for col in columns[0].split(',')]
+    clean_csv(file,output,dropna,dropdupe,fix_cols,fillna,list(columns))
     click.echo(f"File cleaned succesfully and saved to {output}")
 
 @cli.command()
 @click.argument("file",type=click.Path(exists=True))
 @click.option("--output","-o", default="encoded_output.csv", help="Output file path")
 @click.option("--method",type=click.Choice(["label","onehot"]),default='label',help='Encoding method')
-def encode(file,method,output):
-    encode_columns(file,output,method)
+@click.option('--columns',multiple=True, default=None,help='Specify columns to operate on (comma-separated).')
+def encode(file,method,output,columns):
+    if columns and len(columns) == 1 and ',' in columns[0]:
+        columns = [col.strip() for col in columns[0].split(',')]
+    encode_columns(file,output,method,list(columns))
     click.echo(f"{method} encoding done successfully!")
 
 @cli.command()

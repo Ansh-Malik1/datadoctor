@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from datetime import datetime
 
-def encode_columns(file,output,method='label'):
+def encode_columns(file,output,method='label',columns=None):
     df=pd.read_csv(file)
     original_shape=df.shape
     summary=[]
@@ -23,10 +23,20 @@ def encode_columns(file,output,method='label'):
     backup_path=f"backups/{os.path.basename(file).split(".")[0]}_before_encoding_{timestamp}.csv"
     df.to_csv(backup_path,index=False)
     summary.append(f"Backup saved to: {backup_path}")
-    
-    categorical_columns=df.select_dtypes(include='object').columns.tolist()
+    if columns:
+        if all(len(col) == 1 for col in columns):
+            joined = ''.join(columns)
+            if joined in df.columns:
+                columns = [joined]
+        missing_cols = [col for col in columns if col not in df.columns]
+        if missing_cols:
+            raise ValueError(f"The following specified columns do not exist in the dataset: {missing_cols}")
+        categorical_columns = columns
+    else:
+        categorical_columns=df.select_dtypes(include=['object', 'category']).columns.tolist()
     if not categorical_columns:
         summary.append("No categorical columns found to encode")
+        return
     else:
         if method=='label':
             le=LabelEncoder()
