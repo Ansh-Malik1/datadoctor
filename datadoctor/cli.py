@@ -30,7 +30,7 @@ def clean(file,output,dropna,dropdupe,fix_cols,fillna,columns):
 @cli.command()
 @click.argument("file",type=click.Path(exists=True))
 @click.option("--output","-o", default="encoded_output.csv", help="User defined output file's name. Default : encoded_output.csv")
-@click.option("--method",type=click.Choice(["label","onehot"]),default='label',help='Encoding method')
+@click.option("--method",type=click.Choice(["label","onehot"],case_sensitive=False),default='label',help='Encoding method')
 @click.option('--columns',multiple=True, default=None,help='Specify columns to operate on (comma-separated).')
 def encode(file,method,output,columns):
     if columns and len(columns) == 1 and ',' in columns[0]:
