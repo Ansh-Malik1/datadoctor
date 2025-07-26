@@ -17,7 +17,7 @@ def cli():
 @click.option("--dropna",is_flag=True,help="Drop the rows with missing values")
 @click.option("--dropdupe",is_flag=True,help="Drop duplicate rows")
 @click.option("--fix-cols",is_flag=True,help="Standardize column names (converts name to lowercase,removes trailing spaces etc)")
-@click.option("--fillna",help="Fill out null values using mean,median,mode or constant fill strategy. Mutually exclusive with dropna")
+@click.option("--fillna",type=str,required=False,default=None,help="Fill out null values using mean,median,mode or constant fill strategy. Mutually exclusive with dropna")
 @click.option('--columns',multiple=True, default=None, help='Specify columns to operate on (comma-separated).')
 def clean(file,output,dropna,dropdupe,fix_cols,fillna,columns):
     if fillna == "":

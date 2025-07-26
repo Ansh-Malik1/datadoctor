@@ -11,7 +11,7 @@ import pandas as pd
 from datetime import datetime
 import os
 
-def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna=None,columns=None):
+def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna="mean",columns=None):
     df=pd.read_csv(file)
     original_shape=df.shape
     summary=[]
@@ -38,8 +38,14 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna=None
     summary.append(f"Backup saved to: {backup_path}")
     summary.append(f"Operation/s applied on columns: {columns}")
     if dropna:
+        
         before=df.shape[0]
-        df=df.dropna()
+        if columns:
+            df.dropna(subset=columns, inplace=True)
+            summary.append(f"Dropped rows with NA in columns: {columns}")
+        else:
+            df.dropna(inplace=True)
+            summary.append("Dropped rows with any missing values.")
         after=df.shape[0]
         summary.append(f"Dropped {before-after} rows with missing values")
         
@@ -79,7 +85,8 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna=None
         strategy = fillna.lower()
         numeric_cols = df.select_dtypes(include='number').columns
         fill_stats = {}
-
+        if columns is not None and isinstance(columns, (list, tuple)) and len(columns) > 0:
+            numeric_cols = [col for col in numeric_cols if col in columns]
         if strategy in ["mean", "median", "mode"]:
             for col in numeric_cols:
                 if df[col].isnull().sum() > 0:
@@ -89,7 +96,7 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna=None
                         value = df[col].median()
                     else:
                         value = df[col].mode().iloc[0]
-                    df[col].fillna(value, inplace=True)
+                    df[col].fillna(value)
                     fill_stats[col] = (df[col].isnull().sum(), value)
             summary.append(f"Filled missing numeric values using '{strategy}' strategy.")
 
@@ -99,8 +106,8 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna=None
                 constant = float(strategy)
                 df.fillna(constant, inplace=True)
                 summary.append(f"Filled all missing values with constant value: {constant}")
-            except ValueError:
-                summary.append(f"Invalid fillna value: '{strategy}'. Skipped filling.")
+            except (ValueError, TypeError):
+                raise ValueError(f"Invalid value for --fillna: '{fillna}'. Use 'mean', 'median', 'mode', or a numeric constant.")
 
     df.to_csv(output,index=False)
     summary.append(f"Cleaned data saved to {output}")
