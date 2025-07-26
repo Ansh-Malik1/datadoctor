@@ -5,8 +5,10 @@ from datadoctor.scaler import scale_columns
 from datadoctor.pca import perform_pca
 from datadoctor.leakage import detect_leakage
 from datadoctor.eda import perform_eda
+from datadoctor import __version__
 import time
 @click.group()
+@click.version_option(version=__version__, prog_name="datadoctor")
 def cli():
     """Datadoctor CLI"""
     pass
