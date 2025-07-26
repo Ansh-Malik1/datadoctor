@@ -20,11 +20,10 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna=None
     if dropna and fillna:
         raise ValueError("You cannot use both --dropna and --fillna together. Choose one.")
     if columns:
-        if all(len(col) == 1 for col in columns) and len(columns) > 3:
-            raise ValueError(
-                f"It looks like you passed a single string without proper quoting, which got split into characters: {columns}. "
-                f"\nPlease use quotes like: --columns 'Profit' or pass as multiple flags: --columns Profit --columns Sales"
-            )
+        if all(len(col) == 1 for col in columns):
+            joined = ''.join(columns)
+            if joined in df.columns:
+                columns = [joined]
         missing_cols = [col for col in columns if col not in df.columns]
         if missing_cols:
             raise ValueError(f"The following specified columns do not exist in the dataset: {missing_cols}")
@@ -37,7 +36,7 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna=None
     backup_path=f"backups/{os.path.basename(file).split('.')[0]}_before_cleaning_{timestamp}.csv"
     df.to_csv(backup_path,index=False)
     summary.append(f"Backup saved to: {backup_path}")
-    
+    summary.append(f"Operation/s applied on columns: {columns}")
     if dropna:
         before=df.shape[0]
         df=df.dropna()
