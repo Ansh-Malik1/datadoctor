@@ -19,7 +19,7 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna="mea
         raise ValueError("No operation specified")
     if dropna and fillna:
         raise ValueError("You cannot use both --dropna and --fillna together. Choose one.")
-    if columns:
+    if columns is not None and isinstance(columns, (list, tuple)) and len(columns) > 0:
         if all(len(col) == 1 for col in columns):
             joined = ''.join(columns)
             if joined in df.columns:
@@ -40,7 +40,7 @@ def clean_csv(file,output,dropna=False,dropdupe=False,fix_cols=False,fillna="mea
     if dropna:
         
         before=df.shape[0]
-        if columns:
+        if columns is not None and isinstance(columns, (list, tuple)) and len(columns) > 0:
             df.dropna(subset=columns, inplace=True)
             summary.append(f"Dropped rows with NA in columns: {columns}")
         else:
