@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 import pandas as pd
 def perform_pca(file,output,target,components=None,retain=None):
     df=pd.read_csv(file)
-    os.makedirs("backup",exist_ok=True)
+    os.makedirs("backups",exist_ok=True)
     os.makedirs("operation_summary",exist_ok=True)
     
     timestamp=datetime.now().strftime("%Y%m%d_%H%M%S")
