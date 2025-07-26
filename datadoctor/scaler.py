@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 
-def scale_columns(file,method,output,columns=None):
+def scale_columns(file,output,method="standard",columns=None):
     df=pd.read_csv(file)
     original_shape=df.shape
     summary=[]
@@ -20,7 +20,7 @@ def scale_columns(file,method,output,columns=None):
     os.makedirs("operation_summary",exist_ok=True)
     
     timestamp=datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_path=f"backups.{os.path.basename(file).split()[0]}"
+    backup_path=f"backups/{os.path.basename(file).split('.')[0]}_before_cleaning_{timestamp}.csv"
     df.to_csv(backup_path, index=False)
     summary.append(f"Backup saved to: {backup_path}")
     
