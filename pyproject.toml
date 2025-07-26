@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "datadoctor"
+name = "datamedic"
 version = "0.1.0"
 description = "A Python package for cleaning CSV files and detecting data leakage in machine learning workflows"
 authors = [{ name = "Ansh Malik", email = "anshmalik845@gmail.com" }]
@@ -18,4 +18,4 @@ dependencies = [
 ]
 
 [project.scripts]
-datadoctor = "datadoctor.cli:cli"
+datamedic = "datamedic.cli:cli"
