@@ -115,6 +115,35 @@ datamedic/
 │   └── [stepwise summaries]
 │
 ```
+## 🚧 Planned Enhancements
+
+datamedic is just getting started. Here are some powerful features planned for upcoming versions of **datamedic**:
+
+- **Model-based Suggestions**  
+  Intelligent preprocessing pipelines tailored to your dataset using lightweight ML models.
+
+- **Outlier Treatment**  
+  Multiple outlier handling strategies (IQR, Z-score, Winsorization) to clean extreme values effortlessly.
+
+- **Train-Test Split Utility**  
+  Smart splitting with class balance checks, leakage detection, and optional stratification.
+
+- **Support for More Formats**  
+  Native compatibility with `.json` and `.xlsx` files, beyond just CSV.
+
+- **Execution Time Logs**  
+  Timestamped logs for each preprocessing step to help profile large workflows.
+
+- **PDF Report Generator**  
+  A polished summary report with visualizations, data stats, and insights in downloadable PDF format.
+
+- **Interactive Dashboard Output (Optional)**  
+  A local web dashboard for navigating EDA results visually.
+
+---
+
+💡 Have ideas or requests? [Open an issue](https://github.com/Ansh-Malik1/datamedic/issues) or [fill the feedback form](https://forms.gle/5crnhBgvJ9LK9dov5)
+
 ## 📄 License
 This project is licensed under the MIT License — see the LICENSE file for details.
 
@@ -143,5 +172,7 @@ Link : <>
 Even a like, comment, or repost goes a long way in helping this reach more people.
 
  📌 **Products improve over time, but it's the personal brand and community that lasts forever.**
+
+ datemedic linktree (contains all useful and important links) : https://linktr.ee/AnshM845
 
 Thanks for being a part of the journey.
