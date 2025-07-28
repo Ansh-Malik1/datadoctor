@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "datamedic"
 version = "1.0.0"
 description = "A Python package for cleaning CSV files and detecting data leakage in machine learning workflows"
+readme = "README.md" 
 authors = [{ name = "Ansh Malik", email = "anshmalik845@gmail.com" }]
 requires-python = ">=3.8"
 dependencies = [
@@ -16,6 +17,19 @@ dependencies = [
     "matplotlib>=3.7.1",
     "seaborn>=0.12.2"
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: Information Analysis"
+]
+
+[project.urls]
+"Documentation" = "https://drive.google.com/file/d/1-C_I3NhjZ3CU0YQJlsGxmixaG7iJOqUw/view?usp=sharing"
+"Demo Video" = "https://drive.google.com/file/d/1cPiCC2rxUh0GD3RMAYj0QTJURQK7MQnH/view?usp=sharing"
+"Linktree" = "https://linktr.ee/AnshM845"
 
 [project.scripts]
 datamedic = "datamedic.cli:cli"
