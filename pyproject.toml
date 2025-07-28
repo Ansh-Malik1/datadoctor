@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "datamedic"
 version = "1.0.0"
-license = { text = "MIT" }
 description = "A Python package for cleaning CSV files and detecting data leakage in machine learning workflows"
 authors = [{ name = "Ansh Malik", email = "anshmalik845@gmail.com" }]
 requires-python = ">=3.8"
