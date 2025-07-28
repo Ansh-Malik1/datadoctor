@@ -167,7 +167,7 @@ Use it. Share it. Trust it.
 
 If you found **datamedic** valuable, please consider supporting the project by engaging with my linkedin,
 
-Link : <>
+Link : [Linkedin Post](https://www.linkedin.com/posts/ansh-malik-b476b0261_python-datascience-datapreprocessing-activity-7355501547859951616-bKXy?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAAEBaWWcBTb_OJNv55mR5vmiuEA_79AaNFj4)
 
 Even a like, comment, or repost goes a long way in helping this reach more people.
 
